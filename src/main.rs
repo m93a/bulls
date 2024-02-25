@@ -4,36 +4,44 @@ use std::io::Write;
 const SYMBOLS: &str =
     "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#&%_+-*/^()[]{}<>:;";
 
+fn read(msg: &str) -> String {
+    let si = io::stdin();
+    let mut so = io::stdout();
+    let mut result = String::new();
+
+    println!("{}", msg);
+    print!("> ");
+    so.flush().unwrap();
+    si.read_line(&mut result).unwrap();
+
+    result
+}
+
+fn read_int(msg: &str, default: Option<usize>) -> usize {
+    loop {
+        let read_str = read(msg);
+        if read_str.trim() == "" && default.is_some() {
+            println!("> {}", default.unwrap());
+            return default.unwrap();
+        }
+        if let Ok(num) = read_str.trim().parse::<usize>() {
+            return num;
+        }
+        println!("Bad input, please enter a positive integer in base 10.");
+    }
+}
+
 fn main() {
     println!();
     println!("Welcome to Bulls and Cows!");
-    let si = io::stdin();
-    let mut so = io::stdout();
-    let mut read_str = String::new();
-    let mut read_int = |msg: &str, default: Option<usize>| -> usize {
-        loop {
-            println!("{}", msg);
-            print!("> ");
-            so.flush().unwrap();
-            read_str.clear();
-            si.read_line(&mut read_str).unwrap();
-            println!();
-            if read_str.trim() == "" && default.is_some() {
-                println!("> {}", default.unwrap());
-                return default.unwrap();
-            }
-            if let Ok(num) = read_str.trim().parse::<usize>() {
-                return num;
-            }
-            println!("Bad input, please enter a positive integer in base 10.");
-        }
-    };
 
+    println!();
     let length = read_int(
         "How many symbols do you want to guess? (Default: 4)",
         Some(4),
     );
 
+    println!();
     let count = read_int(
         "From how many symbols should be in the dictionary? (Default: 10)",
         Some(10),
@@ -45,4 +53,4 @@ fn main() {
     }
 
     let dict = &SYMBOLS[0..count];
- }
+}
