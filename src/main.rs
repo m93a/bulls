@@ -1,3 +1,4 @@
+use rand::prelude::*;
 use std::io;
 use std::io::Write;
 
@@ -83,6 +84,25 @@ fn read_bool(
   }
 }
 
+fn generate_secret(
+  mut dict: Vec<char>,
+  length: usize,
+  repeating: bool,
+) -> Vec<char> {
+  let mut secret = Vec::with_capacity(length);
+
+  while secret.len() < length {
+    let i = rand::thread_rng()
+      .gen_range(0..dict.len());
+    secret.push(dict[i]);
+    if !repeating {
+      dict.remove(i);
+    }
+  }
+
+  secret
+}
+
 fn main() {
   println!();
   println!("Welcome to Bulls and Cows!");
@@ -95,7 +115,7 @@ fn main() {
 
   println!();
   let count = read_int(
-    "From how many symbols should be in the dictionary?",
+    "How many symbols should be in the dictionary?",
     Some(10),
   );
 
@@ -108,10 +128,16 @@ fn main() {
   }
 
   let dict = &SYMBOLS[0..count];
+  let dict: Vec<_> = dict.chars().collect();
 
   println!();
   let repeating = read_bool(
     "Do you want to allow repeating symbols?",
     Some(false),
   );
+
+  let secret =
+    generate_secret(dict, length, repeating);
+
+  println!("The secret is: {}", String::from_iter(secret));
 }
