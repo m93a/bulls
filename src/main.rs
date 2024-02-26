@@ -89,7 +89,8 @@ fn generate_secret(
   length: usize,
   repeating: bool,
 ) -> Vec<char> {
-  let mut secret = Vec::with_capacity(length);
+  let mut secret =
+    Vec::with_capacity(length);
 
   while secret.len() < length {
     let i = rand::thread_rng()
@@ -101,6 +102,53 @@ fn generate_secret(
   }
 
   secret
+}
+
+struct Matches {
+  bulls: usize,
+  cows: usize,
+}
+
+fn check_matches(
+  secret: &[char],
+  guess: &[char],
+) -> Matches {
+  let len = secret.len();
+
+  let mut matches =
+    Matches { bulls: 0, cows: 0 };
+
+  let mut secret: Vec<_> = secret
+    .iter()
+    .map(|&s| Some(s))
+    .collect();
+
+  let mut guess: Vec<_> =
+    guess.iter().map(|&s| Some(s)).collect();
+
+  for i in 0..len {
+    if guess[i] == secret[i] {
+      matches.bulls += 1;
+      secret[i] = None;
+      guess[i] = None;
+    }
+  }
+
+  for i in 0..len {
+    if guess[i].is_none() {
+      continue;
+    }
+    if let Some(si) = secret
+      .iter()
+      .position(|&s| s == guess[i])
+    {
+      matches.cows += 1;
+      secret[si] = None;
+      guess[i] = None;
+    }
+  }
+
+  matches
 }
 
 fn main() {
@@ -139,5 +187,8 @@ fn main() {
   let secret =
     generate_secret(dict, length, repeating);
 
-  println!("The secret is: {}", String::from_iter(secret));
+  println!(
+    "The secret is: {}",
+    String::from_iter(secret)
+  );
 }
