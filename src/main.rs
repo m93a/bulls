@@ -84,6 +84,37 @@ fn read_bool(
   }
 }
 
+fn read_guess(
+  msg: &str,
+  dict: &[char],
+  length: usize,
+) -> Vec<char> {
+  loop {
+    let str = read(msg);
+    let chars: Vec<_> =
+      str.trim().chars().collect();
+
+    if chars.len() != length {
+      println!("Bad input, expected {} symbols, but got {}.", length, chars.len());
+      continue;
+    }
+
+    for ch in chars.iter() {
+      let valid = dict
+        .iter()
+        .find(|&s| s == ch)
+        .is_some();
+
+      if !valid {
+        println!("Bad input, character \"{}\" not in the dictionary. Allowed characters: {}", ch, String::from_iter(dict));
+        continue;
+      }
+    }
+
+    return chars;
+  }
+}
+
 fn generate_secret(
   mut dict: Vec<char>,
   length: usize,
@@ -184,11 +215,31 @@ fn main() {
     Some(false),
   );
 
-  let secret =
-    generate_secret(dict, length, repeating);
-
-  println!(
-    "The secret is: {}",
-    String::from_iter(secret)
+  let secret = generate_secret(
+    dict.clone(),
+    length,
+    repeating,
   );
+
+  let mut guess_count = 0;
+  loop {
+    println!();
+    let guess = read_guess(&format!("Guess the combination! Guesses so far: {}", guess_count), &dict, length);
+    guess_count += 1;
+
+    if guess == secret {
+      println!(
+        "Correct! It took you {} guesses!",
+        guess_count
+      );
+      break;
+    }
+
+    let matches =
+      check_matches(&secret, &guess);
+    println!(
+      "Bulls: {}; Cows {}",
+      matches.bulls, matches.cows
+    );
+  }
 }
